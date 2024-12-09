@@ -4,14 +4,26 @@ from fastapi import FastAPI, HTTPException, Body
 from openai import OpenAI
 import time
 import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
+
 client = OpenAI()
 # Set your OpenAI API key
 client.api_key = os.environ.get("OPENAI_API_KEY", None)
 
 # Your previously created assistant ID
 assistantID = os.environ.get("OPENAI_ASSISTANT_ID", None)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or specify your frontend domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
@@ -40,11 +52,6 @@ def wait_on_run(run, thread):
         )
         time.sleep(0.5)
     return run
-
-
-@app.get("/")
-def hello():
-    return {"message": "app is running"}
 
 
 @app.post("/chat")

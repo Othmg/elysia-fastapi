@@ -98,7 +98,6 @@ def chat(
         run = client.beta.threads.runs.create_and_poll(
             thread_id=thread.id,
             assistant_id=assistantID,
-            instructions="Be a helpful therapist",
         )
         run = wait_on_run(run, thread)
 

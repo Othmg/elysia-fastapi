@@ -14,8 +14,6 @@ client = OpenAI()
 # Set your OpenAI API key
 client.api_key = os.environ.get("OPENAI_API_KEY", None)
 
-# Your previously created assistant ID
-assistantID = os.environ.get("OPENAI_ASSISTANT_ID", None)
 
 app.add_middleware(
     CORSMiddleware,
@@ -58,7 +56,18 @@ def wait_on_run(run, thread):
 def chat(
     user_text: str = Body(..., embed=True),
     thread_id: Optional[str] = Body(None, embed=True),
+    assistant_id: str = Body(..., embed=True),
 ):
+    # Use the provided assistant_id instead of the default one
+    # Create or retrieve the thread, then run:
+    run = client.beta.threads.runs.create_and_poll(
+        thread_id=thread.id,
+        assistant_id=assistant_id,
+    )
+    # assistant front end id to openAI Id (to avoid exposing it)
+    # available: OPENAI_ASSISTANT_ID, BOOSTER_ASSISTANT_ID, ANALYTIQUE_ASSISTANT_ID, EMPATHIQUE_ASSISTANT_ID,COACH_ASSISTANT_ID,APAISANT_ASSISTANT_ID
+    assistantID = os.environ.get(assistant_id, "OPENAI_ASSISTANT_ID")
+
     """
     POST JSON:
     {
@@ -125,17 +134,17 @@ def chat(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/thread/{thread_id}")
-def retrieve_thread(thread_id: str):
-    """
-    Retrieve a thread and its messages.
-    GET /thread/<thread_id>
-    """
-    try:
-        thread = client.beta.threads.retrieve(
-            assistant_id=assistantID, thread_id=thread_id
-        )
-        # The thread object includes messages, title, etc.
-        return thread
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+# @app.get("/thread/{thread_id}")
+# def retrieve_thread(thread_id: str):
+#     """
+#     Retrieve a thread and its messages.
+#     GET /thread/<thread_id>
+#     """
+#     try:
+#         thread = client.beta.threads.retrieve(
+#             assistant_id=assistantID, thread_id=thread_id
+#         )
+#         # The thread object includes messages, title, etc.
+#         return thread
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))

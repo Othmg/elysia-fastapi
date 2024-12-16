@@ -58,12 +58,7 @@ def chat(
     thread_id: Optional[str] = Body(None, embed=True),
     assistant_id: str = Body(..., embed=True),
 ):
-    # Use the provided assistant_id instead of the default one
-    # Create or retrieve the thread, then run:
-    run = client.beta.threads.runs.create_and_poll(
-        thread_id=thread.id,
-        assistant_id=assistant_id,
-    )
+
     # assistant front end id to openAI Id (to avoid exposing it)
     # available: OPENAI_ASSISTANT_ID, BOOSTER_ASSISTANT_ID, ANALYTIQUE_ASSISTANT_ID, EMPATHIQUE_ASSISTANT_ID,COACH_ASSISTANT_ID,APAISANT_ASSISTANT_ID
     assistantID = os.environ.get(assistant_id, "OPENAI_ASSISTANT_ID")
